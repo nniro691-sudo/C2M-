@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D·Future C2M 平台超级运营看板</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f1f5f9; }
+        .font-serif { font-family: 'Noto Serif SC', serif; }
+        
+        /* 动态选项卡样式 */
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-active { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        /* 内容淡入动画 */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mermaid 容器样式 */
+        .mermaid { background: white; border-radius: 1rem; padding: 1rem; display: flex; justify-content: center; overflow-x: auto;}
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 信纸样式 */
+        .letter-paper {
+            background-color: #fffbf0;
+            background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 100% 2rem;
+            line-height: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* 表格斑马纹与悬停 */
+        .data-table tr:nth-child(even) { background-color: #f8fafc; }
+        .data-table tr:hover { background-color: #f1f5f9; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- 顶部导航 -->
+    <nav class="bg-slate-900 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-cube text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xl tracking-wider leading-none">3D·Future</span>
+                        <span class="text-xs text-blue-400 font-light tracking-widest">C2M 运营中台 v2.5 (Fix)</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6 text-sm">
+                    <div class="flex items-center gap-2 opacity-80 hover:opacity-100 transition"><i class="fa-solid fa-server"></i> 农场: <span class="font-mono font-bold text-green-400">42</span></div>
+                    <div class="flex items-center gap-2 opacity-80 hover:opacity-100 transition"><i class="fa-solid fa-users"></i> 用户: <span class="font-mono font-bold text-blue-400">12.5k</span></div>
+                    <div class="h-4 w-px bg-slate-700"></div>
+                    <span class="px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full border border-blue-500/30 text-xs">运营模式：Beta</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        
+        <!-- 模块一：全景流程图 -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-project-diagram text-blue-500"></i> 全景业务流程
+                </h2>
+                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">实时渲染 · Mermaid</span>
+            </div>
+            <div class="mermaid">
+graph TD
+    %% 样式定义
+    classDef user fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,rx:5;
+    classDef platform fill:#fffbeb,stroke:#f59e0b,stroke-width:2px,rx:5;
+    classDef farm fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,rx:5;
+    classDef resource fill:#fff1f2,stroke:#f43f5e,stroke-width:2px,rx:5;
+
+    %% 核心资源库
+    subgraph Resources [核心资产：模型资源库]
+        direction TB
+        R_Safe[公有领域/博物馆]
+        R_AI[AI生成接口]
+        R_Tools[参数化工具]
+    end
+
+    %% 用户端
+    subgraph UserSide [用户端：神笔马良]
+        direction TB
+        U_Create([孩子: 涂鸦/创作]) 
+        U_Order[家长: 下单/支付]
+        Marketing[营销: 致家长的一封信] -.->|转化| U_Order
+    end
+
+    %% 平台端
+    subgraph PlatformSide [平台端：智能中枢]
+        direction TB
+        Order_In(订单接入)
+        Dispatch{智能分发算法}
+    end
+
+    %% 供应端
+    subgraph FarmSide [供应端：认证农场 SOP]
+        direction TB
+        Farm_Pool[认证农场池]
+        Process_Print[SOP生产] --> Process_QC[SOP质检]
+        Process_QC --> Process_Pack[统一包装]
+    end
+
+    %% 逻辑连接
+    R_Safe & R_AI & R_Tools -->|赋能| U_Create
+    U_Create -->|生成模型| U_Order
+    U_Order --> Order_In --> Dispatch
+    Dispatch --> Farm_Pool
+    Farm_Pool --> Process_Print
+    Process_Pack -->|物流| U_Create
+
+    %% 样式应用
+    class U_Create,U_Order,Marketing user;
+    class Order_In,Dispatch platform;
+    class Farm_Pool,Process_Print,Process_QC,Process_Pack farm;
+    class R_Safe,R_AI,R_Tools resource;
+            </div>
+        </section>
+
+        <!-- 模块二：核心文档库 (Tabs) -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">运营文档库</h2>
+                <div class="h-px bg-slate-200 flex-1"></div>
+            </div>
+
+            <!-- Tab 导航 -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                <button onclick="switchTab('strategy')" id="tab-strategy" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-blue-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-chess text-blue-500 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">1. 运营策略</div>
+                    <div class="text-xs text-slate-400 mt-1">全局商业逻辑</div>
+                </button>
+
+                <button onclick="switchTab('resources')" id="tab-resources" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-rose-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-rose-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-shapes text-rose-500 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">2. 模型资源库</div>
+                    <div class="text-xs text-slate-400 mt-1">免费 & 版权安全</div>
+                </button>
+
+                <button onclick="switchTab('sop')" id="tab-sop" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-green-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-green-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-clipboard-check text-green-500 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">3. 农场 SOP</div>
+                    <div class="text-xs text-slate-400 mt-1">生产标准作业程序</div>
+                </button>
+
+                <button onclick="switchTab('prd')" id="tab-prd" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-amber-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-amber-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">4. 神笔马良 PRD</div>
+                    <div class="text-xs text-slate-400 mt-1">核心功能定义</div>
+                </button>
+
+                <button onclick="switchTab('marketing')" id="tab-marketing" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-purple-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-purple-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-envelope-open-text text-purple-500 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">5. 营销文案</div>
+                    <div class="text-xs text-slate-400 mt-1">致家长的一封信</div>
+                </button>
+
+                <!-- NEW TAB: Data & Finance -->
+                <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn bg-white border border-slate-200 p-4 rounded-xl text-left hover:bg-cyan-50 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-100 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition"></div>
+                    <i class="fa-solid fa-file-invoice-dollar text-cyan-600 text-xl mb-2 block"></i>
+                    <div class="font-bold text-slate-700">6. 数据与财务</div>
+                    <div class="text-xs text-slate-400 mt-1">订单/分润/利润表</div>
+                </button>
+            </div>
+
+            <!-- 内容展示区 -->
+            <div id="content-container" class="bg-white rounded-2xl shadow-lg border border-slate-100 min-h-[500px] p-8">
+                <!-- 动态内容将被注入这里 -->
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="border-t border-slate-200 pt-8 pb-12 text-center">
+            <p class="text-slate-400 text-sm">© 2024 3D·Future C2M Platform Strategy Dashboard.</p>
+        </footer>
+
+    </main>
+
+    <!-- 逻辑脚本 -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default', fontFamily: 'Noto Sans SC' });
+    </script>
+
+    <script>
+        // 模拟初始报表数据
+        let reportData = [
+            { id: "ORD-8892", product: "神笔马良-小怪兽(中)", amount: 68.00, cost: 40.80, profit: 27.20, farm: "#42 杭州", status: "已完成" },
+            { id: "ORD-8893", product: "博物馆-维纳斯(大)", amount: 128.00, cost: 76.80, profit: 51.20, farm: "#08 上海", status: "生产中" },
+            { id: "ORD-8894", product: "参数化-光影灯", amount: 88.00, cost: 52.80, profit: 35.20, farm: "#15 深圳", status: "待接单" },
+            { id: "ORD-8891", product: "神笔马良-汽车", amount: 68.00, cost: 0.00, profit: 0.00, farm: "#42 杭州", status: "售后退款" }
+        ];
+
+        // 辅助：生成CSV内容
+        function generateCSVContent(data) {
+            const headers = ["订单号", "产品名称", "用户实付", "农场结算", "平台毛利", "承接农场", "状态"];
+            const csvRows = [headers.join(",")];
+            
+            data.forEach(row => {
+                const values = [
+                    row.id,
+                    row.product,
+                    row.amount.toFixed(2),
+                    row.cost.toFixed(2),
+                    row.profit.toFixed(2),
+                    row.farm,
+                    row.status
+                ];
+                csvRows.push(values.join(","));
+            });
+            return "\uFEFF" + csvRows.join("\n"); // Add BOM
+        }
+
+        // 功能1：下载模板
+        window.downloadTemplate = function() {
+            const templateData = [
+                { id: "示例ORD-001", product: "示例产品", amount: 100.00, cost: 60.00, profit: 40.00, farm: "#01 示例农场", status: "已完成" }
+            ];
+            const csvString = generateCSVContent(templateData);
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "数据导入模板.csv";
+            link.click();
+        };
+
+        // 功能2：导出当前报表
+        window.exportReport = function() {
+            const csvString = generateCSVContent(reportData);
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "3D_Future_Finance_Report.csv";
+            link.click();
+            alert("✅ 报表导出成功！");
+        };
+
+        // 功能3：导入 CSV
+        window.handleImport = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const rows = text.split('\n').map(row => row.trim()).filter(row => row);
+                
+                // 简单解析 (跳过表头)
+                const newData = [];
+                for (let i = 1; i < rows.length; i++) {
+                    const cols = rows[i].split(',');
+                    if (cols.length >= 7) {
+                        newData.push({
+                            id: cols[0],
+                            product: cols[1],
+                            amount: parseFloat(cols[2]) || 0,
+                            cost: parseFloat(cols[3]) || 0,
+                            profit: parseFloat(cols[4]) || 0,
+                            farm: cols[5],
+                            status: cols[6]
+                        });
+                    }
+                }
+
+                if (newData.length > 0) {
+                    reportData = newData; // 更新全局数据
+                    switchTab('finance'); // 重新渲染页面
+                    alert(`🎉 成功导入 ${newData.length} 条数据！\n驾驶舱KPI已自动更新。`);
+                } else {
+                    alert("❌ 导入失败：未识别到有效数据，请检查格式。");
+                }
+                input.value = ''; // 重置 input
+            };
+            reader.readAsText(file);
+        };
+
+        // 动态生成表格 HTML
+        function renderFinanceTable() {
+            // 计算 KPI
+            const totalOrders = reportData.length;
+            const totalGMV = reportData.reduce((acc, curr) => acc + curr.amount, 0);
+            const totalCost = reportData.reduce((acc, curr) => acc + curr.cost, 0);
+            const totalProfit = reportData.reduce((acc, curr) => acc + curr.profit, 0);
+
+            // 生成表格行
+            const rowsHtml = reportData.map(row => {
+                let statusClass = "bg-gray-100 text-gray-600";
+                if(row.status.includes("完成")) statusClass = "bg-green-100 text-green-600";
+                if(row.status.includes("生产")) statusClass = "bg-blue-100 text-blue-600";
+                if(row.status.includes("退款")) statusClass = "bg-red-100 text-red-600";
+                if(row.status.includes("待")) statusClass = "bg-amber-100 text-amber-600";
+
+                return `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <div class="font-bold text-slate-800">${row.id}</div>
+                        <div class="text-[10px] text-slate-400">${row.product}</div>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold text-slate-800">¥${row.amount.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right text-slate-500">-¥${row.cost.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right text-green-600 font-bold">+¥${row.profit.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-center text-xs">${row.farm}</td>
+                    <td class="px-4 py-3 text-center"><span class="${statusClass} px-2 py-0.5 rounded-full text-[10px] font-bold">${row.status}</span></td>
+                </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="fade-in">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-cyan-100 pb-4 gap-4">
+                        <h3 class="text-2xl font-bold text-cyan-800 border-l-4 border-cyan-500 pl-4">财务与订单数据中心</h3>
+                        <div class="flex gap-2">
+                            <button onclick="downloadTemplate()" class="text-xs bg-white border border-slate-200 text-slate-600 px-3 py-1 rounded hover:bg-slate-50 transition flex items-center"><i class="fa-solid fa-download mr-1"></i>下载模板</button>
+                            <button onclick="document.getElementById('csvInput').click()" class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition flex items-center shadow-sm"><i class="fa-solid fa-file-import mr-1"></i>导入 CSV</button>
+                            <input type="file" id="csvInput" accept=".csv" class="hidden" onchange="handleImport(this)">
+                            <button onclick="exportReport()" class="text-xs bg-cyan-100 text-cyan-700 px-3 py-1 rounded hover:bg-cyan-200 transition flex items-center"><i class="fa-solid fa-file-export mr-1"></i>导出报表</button>
+                        </div>
+                    </div>
+
+                    <!-- 财务驾驶舱 (KPI Cards) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500 mb-1">当前展示订单数</div>
+                            <div class="text-2xl font-bold text-slate-800">${totalOrders}</div>
+                        </div>
+                        <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-200">
+                            <div class="text-xs text-cyan-700 mb-1">总流水 (GMV)</div>
+                            <div class="text-2xl font-bold text-cyan-800">¥${totalGMV.toFixed(2)}</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-200">
+                            <div class="text-xs text-red-700 mb-1">总支出 (Cost)</div>
+                            <div class="text-2xl font-bold text-red-800">¥${totalCost.toFixed(2)}</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                            <div class="text-xs text-green-700 mb-1">总净利 (Profit)</div>
+                            <div class="text-2xl font-bold text-green-800">¥${totalProfit.toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <!-- 订单流水表格 -->
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-8">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <h4 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-list-ul mr-2 text-cyan-500"></i>实时订单流水 (Order Stream)</h4>
+                            <span class="text-[10px] text-slate-400">支持 CSV 导入更新</span>
+                        </div>
+                        <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                            <table class="w-full text-sm text-left text-slate-600 data-table">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3">订单号/产品</th>
+                                        <th class="px-4 py-3 text-right">用户实付</th>
+                                        <th class="px-4 py-3 text-right">农场结算</th>
+                                        <th class="px-4 py-3 text-right">平台毛利</th>
+                                        <th class="px-4 py-3 text-center">承接农场</th>
+                                        <th class="px-4 py-3 text-center">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-xs text-slate-400">
+                        * 提示：导入数据时，请确保使用 UTF-8 编码的 CSV 文件，表头顺序需与模板一致。
+                    </div>
+                </div>
+            `;
+        }
+
+        // 数据库 (合并后的完整版)
+        const db = {
+            strategy: {
+                color: 'blue',
+                html: `
+                    <div class="fade-in">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-6 border-l-4 border-blue-500 pl-4">全局商业模式运营策略</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- 1. 供应链 -->
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                                <h4 class="font-bold text-lg mb-4 flex items-center text-slate-700"><i class="fa-solid fa-truck-fast mr-2 text-blue-500"></i>一、订单与供应链 (Supply)</h4>
+                                <ul class="space-y-4 text-sm text-slate-600">
+                                    <li class="flex gap-3"><span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">准入</span> <div><strong>农场分级体系</strong>：环保耗材认证(PLA)、机器精度认证、能力标签化(双色/高精度)。</div></li>
+                                    <li class="flex gap-3"><span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">调度</span> <div><strong>智能派单算法</strong>：基于地理位置(近)、负载均衡(快)、能力匹配(准)；支持复杂订单拆单并行。</div></li>
+                                    <li class="flex gap-3"><span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">透明</span> <div><strong>云监工与质检</strong>：生产过程可视化(摄像头)，发货前AI+人工双重审图。</div></li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 2. 用户增长 -->
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                                <h4 class="font-bold text-lg mb-4 flex items-center text-slate-700"><i class="fa-solid fa-rocket mr-2 text-rose-500"></i>二、用户增长 (Growth)</h4>
+                                <ul class="space-y-4 text-sm text-slate-600">
+                                    <li class="flex gap-3"><span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">孩子</span> <div><strong>造物主成就感</strong>：“神笔马良”玩法(画变3D)，IP联名盲盒，开箱附赠“设计师证书”。</div></li>
+                                    <li class="flex gap-3"><span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">家长</span> <div><strong>教育闭环</strong>：绑定STEM课程，将消费转化为“教学成果实体化”，强调材料安全。</div></li>
+                                    <li class="flex gap-3"><span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-xs font-bold h-fit mt-0.5">钩子</span> <div><strong>裂变机制</strong>：拼团打印太阳系模型，首单体验价，报课赠打印券。</div></li>
+                                </ul>
+                            </div>
+
+                            <!-- 3. 数据闭环 -->
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 lg:col-span-2">
+                                <h4 class="font-bold text-lg mb-4 flex items-center text-slate-700"><i class="fa-solid fa-chart-pie mr-2 text-purple-500"></i>三、数据运营 (Data)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white p-4 rounded border border-slate-200">
+                                        <div class="font-bold text-slate-700 mb-1">KPI 监控</div>
+                                        <div class="text-xs text-slate-500">履约时效、一次良品率、农场响应速度。</div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded border border-slate-200">
+                                        <div class="font-bold text-slate-700 mb-1">供应链预警</div>
+                                        <div class="text-xs text-slate-500">耗材集采预测、区域爆单产能熔断机制。</div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded border border-slate-200">
+                                        <div class="font-bold text-slate-700 mb-1">模型优化</div>
+                                        <div class="text-xs text-slate-500">基于失败率归因，反向优化模型库结构。</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            resources: {
+                color: 'rose',
+                html: `
+                    <div class="fade-in">
+                        <div class="flex justify-between items-center mb-6 border-b border-rose-100 pb-4">
+                            <h3 class="text-2xl font-bold text-rose-800 border-l-4 border-rose-500 pl-4">免费 & 商用安全 3D 模型资源库</h3>
+                            <div class="text-sm bg-rose-50 text-rose-600 px-3 py-1 rounded-full"><i class="fa-solid fa-shield-cat mr-1"></i>版权红线：严禁使用 Non-Commercial (NC) 资源</div>
+                        </div>
+
+                        <div class="space-y-8">
+                            <!-- 1. 博物馆/公有领域 -->
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-landmark mr-2 text-rose-400"></i>一、家中博物馆 (Public Domain / CC0)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition bg-slate-50 group">
+                                        <a href="https://3d.si.edu/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">Smithsonian 3D <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i></a>
+                                        <div class="text-xs text-slate-500 mt-1 mb-2">全球最大博物馆数字化项目 (史密森尼)</div>
+                                        <div class="text-sm text-slate-600 mb-2">推荐：猛犸象骨架、林肯面具、青铜器</div>
+                                        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold">CC0 可商用</span>
+                                    </div>
+                                    <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition bg-slate-50">
+                                        <a href="https://nasa3d.arc.nasa.gov/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">NASA 3D Resources <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i></a>
+                                        <div class="text-xs text-slate-500 mt-1 mb-2">天文爱好者的天堂</div>
+                                        <div class="text-sm text-slate-600 mb-2">推荐：火星地形、哈勃望远镜、国际空间站</div>
+                                        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold">Public Domain</span>
+                                    </div>
+                                    <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition bg-slate-50">
+                                        <a href="https://www.myminifactory.com/scantheworld/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">Scan The World <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i></a>
+                                        <div class="text-xs text-slate-500 mt-1 mb-2">全球雕塑扫描 (MyMiniFactory)</div>
+                                        <div class="text-sm text-slate-600 mb-2">推荐：维纳斯、大卫像、罗塞塔石碑</div>
+                                        <span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded font-bold">需筛选 CC0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. STEM & 科研 -->
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-flask mr-2 text-rose-400"></i>二、STEM 教育与科研</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition bg-slate-50">
+                                        <a href="https://3dprint.nih.gov/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">NIH 3D Print Exchange <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i></a>
+                                        <div class="text-sm text-slate-600 mt-1">权威生物医学库。推荐：病毒结构、DNA双螺旋、心脏解剖。</div>
+                                    </div>
+                                    <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition bg-slate-50">
+                                        <a href="https://africanfossils.org/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">African Fossils <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i></a>
+                                        <div class="text-sm text-slate-600 mt-1">人类起源化石。推荐：早期人类头骨、史前动物。</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. 参数化 & AI -->
+                            <div>
+                                <h4 class="font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-sliders mr-2 text-rose-400"></i>三、参数化生成 & AI (无版权风险)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="border-l-4 border-rose-400 bg-rose-50 p-4 rounded-r-lg">
+                                        <div class="flex flex-col gap-1">
+                                            <a href="https://itslitho.com/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-1">ItsLitho <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                                            <div class="font-bold text-slate-800 text-sm">光影浮雕 (Lithophane)</div>
+                                        </div>
+                                        <div class="text-sm text-slate-600 mt-1">上传照片生成透光浮雕。</div>
+                                        <div class="text-xs text-rose-500 mt-1">100%安全 (用户提供照片)</div>
+                                    </div>
+                                    <div class="border-l-4 border-rose-400 bg-rose-50 p-4 rounded-r-lg">
+                                        <a href="https://cookiecad.com/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-2">Cookiecad <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                                        <div class="text-sm text-slate-600 mt-1">上传线条画生成饼干模具。</div>
+                                        <div class="text-xs text-rose-500 mt-1">适合烘焙周边定制</div>
+                                    </div>
+                                    <div class="border-l-4 border-rose-400 bg-rose-50 p-4 rounded-r-lg">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex gap-2">
+                                                <a href="https://www.meshy.ai/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-1">Meshy <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a> / 
+                                                <a href="https://www.tripo3d.ai/" target="_blank" class="font-bold text-blue-600 hover:underline flex items-center gap-1">Tripo <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                                            </div>
+                                            <div class="font-bold text-slate-800 text-sm">AI 生成 (Text-to-3D)</div>
+                                        </div>
+                                        <div class="text-sm text-slate-600 mt-1">神笔马良核心技术接口。</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            sop: {
+                color: 'green',
+                html: `
+                    <div class="fade-in">
+                        <div class="flex justify-between items-center mb-6 border-b border-green-100 pb-4">
+                            <h3 class="text-2xl font-bold text-green-800 border-l-4 border-green-500 pl-4">农场标准作业程序 (SOP) v1.0</h3>
+                            <button class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition"><i class="fa-solid fa-download mr-1"></i>下载 PDF 版</button>
+                        </div>
+
+                        <!-- 核心原则 -->
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100 mb-6 flex gap-6">
+                            <div><strong>🎯 核心原则：</strong> “所见即所得”</div>
+                            <div><strong>🛡️ 安全第一：</strong> 接触儿童产品必须无毒、无锐角</div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <!-- Ch1: 环境 -->
+                            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 font-bold text-slate-700">第一章：环境与设备准备</div>
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h5 class="text-sm font-bold text-red-500 mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i>耗材红线标准</h5>
+                                        <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                            <li>必须使用指定品牌 <strong>PLA/PLA+</strong></li>
+                                            <li><span class="line-through text-slate-400">严禁使用 ABS (有毒气味)</span></li>
+                                            <li>储存湿度必须 <strong>&lt; 20%</strong> (防受潮)</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-sm font-bold text-blue-500 mb-2"><i class="fa-solid fa-rotate mr-1"></i>机器校准 (每日)</h5>
+                                        <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                            <li>开机前自动调平 (Auto-Leveling)</li>
+                                            <li>检查喷嘴无堵塞/无旧料残留</li>
+                                            <li>酒精擦拭热床 (去油污)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ch2: 生产 -->
+                            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 font-bold text-slate-700">第二章：生产流程监控</div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
+                                        <div class="bg-slate-50 p-3 rounded"><strong>层高：</strong> 标准 0.2mm / 精细 0.12mm</div>
+                                        <div class="bg-slate-50 p-3 rounded"><strong>填充：</strong> 默认 15-20%</div>
+                                        <div class="bg-slate-50 p-3 rounded"><strong>支撑：</strong> 必须用易拆除树状支撑</div>
+                                    </div>
+                                    <div class="flex items-start gap-3 bg-red-50 p-3 rounded text-red-700 text-sm">
+                                        <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+                                        <div><strong>首层生死线：</strong> 前15分钟必须人工或监控值守。一旦出现翘边、拉丝，立即终止！</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ch3: 后处理 -->
+                            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 font-bold text-slate-700">第三章：后处理与包装</div>
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <h5 class="text-sm font-bold text-slate-700 mb-2">精细化后处理</h5>
+                                        <ol class="list-decimal list-inside text-sm text-slate-600 space-y-2">
+                                            <li><strong>去支撑：</strong> 使用斜口钳，严禁暴力掰断。</li>
+                                            <li><strong>去毛刺：</strong> 检查底部边缘和悬空面。</li>
+                                            <li><strong>打磨 (关键)：</strong> 支撑面需用 400-800目 砂纸打磨，<strong>确保无尖锐突起</strong>。</li>
+                                        </ol>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-sm font-bold text-slate-700 mb-2">包装仪式感 (SOP)</h5>
+                                        <ul class="text-sm text-slate-600 space-y-2">
+                                            <li class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> 定制飞机盒 + 拉菲草</li>
+                                            <li class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> 放入“模型维护卡”垫底</li>
+                                            <li class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> <strong>最顶层：</strong> “首席设计师”证书</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            prd: {
+                color: 'amber',
+                html: `
+                    <div class="fade-in">
+                        <div class="flex justify-between items-center mb-6 border-b border-amber-100 pb-4">
+                            <h3 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-500 pl-4">产品需求文档 (PRD)：神笔马良</h3>
+                            <div class="text-sm text-slate-500">核心功能：2D 涂鸦转 3D 模型</div>
+                        </div>
+
+                        <!-- User Flow -->
+                        <div class="mb-8">
+                            <h4 class="font-bold text-slate-700 mb-3">1. 用户路径 (User Flow)</h4>
+                            <div class="flex flex-wrap items-center gap-2 text-sm text-slate-600 bg-slate-50 p-4 rounded-lg">
+                                <span class="bg-white px-3 py-1 rounded shadow-sm border">首页</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                                <span class="bg-white px-3 py-1 rounded shadow-sm border border-amber-200 text-amber-600 font-bold">神笔马良入口</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                                <span class="bg-white px-3 py-1 rounded shadow-sm border">创作/上传</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                                <span class="bg-amber-100 px-3 py-1 rounded shadow-sm border border-amber-200">AI 魔法生成</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                                <span class="bg-white px-3 py-1 rounded shadow-sm border">3D 预览/配置</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                                <span class="bg-green-50 px-3 py-1 rounded shadow-sm border border-green-200">下单</span>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Canvas -->
+                            <div class="border border-slate-200 rounded-xl p-5 hover:border-amber-300 transition">
+                                <h5 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-palette mr-2 text-amber-500"></i>3.1 创作画板</h5>
+                                <ul class="space-y-2 text-sm text-slate-600">
+                                    <li><strong>上传模式：</strong> 支持拍照上传，集成 OpenCV 自动矫正/切除背景。</li>
+                                    <li><strong>画板工具：</strong> 极简设计（画笔/色盘/橡皮擦）。</li>
+                                    <li><strong>Prompt 辅助：</strong> 允许家长输入辅助词（如：“骑火箭的恐龙”）修正AI意图。</li>
+                                </ul>
+                            </div>
+
+                            <!-- Magic Gen -->
+                            <div class="border border-slate-200 rounded-xl p-5 hover:border-amber-300 transition">
+                                <h5 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-amber-500"></i>3.2 魔法生成</h5>
+                                <ul class="space-y-2 text-sm text-slate-600">
+                                    <li><strong>情感化加载：</strong> 拒绝进度条。文案：“AI魔法师正在注入能量...”，配合粒子特效。</li>
+                                    <li><strong>API 逻辑：</strong> 调用 Tripo/Meshy 接口，超时(30s)重试机制。</li>
+                                </ul>
+                            </div>
+
+                            <!-- 3D Preview -->
+                            <div class="border border-slate-200 rounded-xl p-5 hover:border-amber-300 transition">
+                                <h5 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-cube mr-2 text-amber-500"></i>3.3 预览与配置</h5>
+                                <ul class="space-y-2 text-sm text-slate-600">
+                                    <li><strong>交互：</strong> 单指旋转，双指缩放。</li>
+                                    <li><strong>一键优化：</strong> 调用 Remesh API 修复破损面。</li>
+                                    <li><strong>AR 试玩：</strong> 调用手机摄像头，让模型“站”在桌子上。</li>
+                                </ul>
+                            </div>
+
+                            <!-- Config -->
+                            <div class="border border-slate-200 rounded-xl p-5 hover:border-amber-300 transition">
+                                <h5 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-gears mr-2 text-amber-500"></i>3.4 参数配置</h5>
+                                <ul class="space-y-2 text-sm text-slate-600">
+                                    <li><strong>尺寸可视化：</strong> 小(6cm)/中(10cm)/大(15cm)，UI展示参照物（硬币/可乐罐）。</li>
+                                    <li><strong>材质选择：</strong> 标注“环保PLA”，颜色选择器。</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- UI Visuals (New) -->
+                        <div class="mt-8 pt-6 border-t border-slate-200">
+                            <h4 class="font-bold text-slate-700 mb-4 flex items-center"><i class="fa-solid fa-mobile-screen mr-2 text-amber-500"></i>界面效果预览 (UI Mockup)</h4>
+                            <div class="flex flex-col md:flex-row gap-8 justify-center items-center bg-slate-100 p-8 rounded-xl">
+                                 <!-- Mockup 1: Drawing -->
+                                 <div class="w-64 bg-white rounded-[2rem] shadow-xl border-4 border-slate-800 overflow-hidden relative">
+                                     <!-- Status Bar -->
+                                     <div class="h-6 bg-slate-800 w-full flex justify-end px-3 items-center space-x-1">
+                                         <div class="w-1 h-1 bg-white rounded-full"></div>
+                                         <div class="w-3 h-2 bg-white rounded-[1px]"></div>
+                                     </div>
+                                     <!-- App Header -->
+                                     <div class="p-3 bg-white flex justify-between items-center shadow-sm z-10 relative">
+                                         <span class="font-bold text-orange-500"><i class="fa-solid fa-wand-magic-sparkles"></i> 神笔马良</span>
+                                         <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full">余额: 5</span>
+                                     </div>
+                                     <!-- Canvas -->
+                                     <div class="h-64 bg-yellow-50 relative flex items-center justify-center border-4 border-orange-100 m-2 rounded-xl">
+                                         <svg viewBox="0 0 100 100" class="w-32 h-32 text-slate-800" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                             <path d="M20,70 Q10,60 20,50 Q30,20 50,20 Q70,20 80,50 Q90,60 80,70 Q90,90 50,90 Q10,90 20,70 Z" />
+                                             <circle cx="35" cy="45" r="3" fill="currentColor" />
+                                             <circle cx="65" cy="45" r="5" fill="currentColor" />
+                                             <path d="M40,60 Q50,70 60,60" />
+                                         </svg>
+                                         <i class="fa-solid fa-hand-pointer absolute bottom-4 right-4 text-slate-400 animate-bounce"></i>
+                                     </div>
+                                     <!-- Tools -->
+                                     <div class="px-3 py-2">
+                                         <div class="flex justify-between mb-3">
+                                             <div class="w-6 h-6 rounded-full bg-red-500 ring-2 ring-offset-1 ring-slate-200"></div>
+                                             <div class="w-6 h-6 rounded-full bg-blue-500"></div>
+                                             <div class="w-6 h-6 rounded-full bg-green-500"></div>
+                                             <div class="w-6 h-6 rounded-full bg-yellow-400"></div>
+                                         </div>
+                                         <div class="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-center py-2 rounded-xl font-bold text-sm shadow-lg shadow-orange-200">
+                                             施展魔法 ✨
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <!-- Arrow -->
+                                 <i class="fa-solid fa-arrow-right text-3xl text-slate-300 hidden md:block"></i>
+
+                                 <!-- Mockup 2: 3D Result -->
+                                 <div class="w-64 bg-white rounded-[2rem] shadow-xl border-4 border-slate-800 overflow-hidden relative">
+                                     <!-- Status Bar -->
+                                     <div class="h-6 bg-slate-800 w-full"></div>
+                                     <!-- 3D Viewer -->
+                                     <div class="h-60 bg-gradient-to-b from-blue-50 to-white relative flex items-center justify-center">
+                                          <!-- Low Poly Monster Representation -->
+                                          <i class="fa-solid fa-dragon text-6xl text-orange-400 drop-shadow-xl animate-pulse"></i>
+                                          <div class="absolute bottom-2 left-0 w-full text-center text-[10px] text-slate-400">单指旋转 · 双指缩放</div>
+                                     </div>
+                                     <!-- Config -->
+                                     <div class="p-3 bg-white rounded-t-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                                         <div class="flex justify-between mb-2">
+                                             <div class="text-xs font-bold text-slate-600">选择大小</div>
+                                             <div class="text-xs text-orange-500 font-bold">¥68.00</div>
+                                         </div>
+                                         <div class="flex gap-2 mb-3">
+                                             <div class="flex-1 border border-orange-200 bg-orange-50 rounded p-1 text-center text-[10px] text-orange-700">中号</div>
+                                             <div class="flex-1 border border-slate-100 rounded p-1 text-center text-[10px] text-slate-500">大号</div>
+                                         </div>
+                                         <div class="bg-green-500 text-white text-center py-2 rounded-xl font-bold text-sm shadow-lg shadow-green-200">
+                                             立即打印 <i class="fa-solid fa-print"></i>
+                                         </div>
+                                     </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            marketing: {
+                color: 'purple',
+                html: `
+                    <div class="fade-in">
+                        <div class="flex justify-between items-center mb-6 border-b border-purple-100 pb-4">
+                            <h3 class="text-2xl font-bold text-purple-800 border-l-4 border-purple-500 pl-4">营销文案：致家长的一封信</h3>
+                            <button class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 transition"><i class="fa-solid fa-copy mr-1"></i>复制文案</button>
+                        </div>
+
+                        <div class="max-w-2xl mx-auto letter-paper p-8 text-slate-700 font-serif relative">
+                            <!-- 装饰元素 -->
+                            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-feather-pointed text-6xl"></i></div>
+
+                            <h1 class="text-2xl font-bold text-center mb-8 text-slate-900">别让孩子的想象力，<br>只停留在废纸篓里。</h1>
+
+                            <p class="mb-4">亲爱的家长：</p>
+                            
+                            <p class="mb-4">您是否遇到过这样的场景？</p>
+                            
+                            <p class="mb-4">孩子兴奋地跑过来，举着一张画得歪歪扭扭的纸，指着上面一团五颜六色的线条对您说：<strong>“爸爸/妈妈，看！这是我发明的超级飞船！”</strong></p>
+                            
+                            <p class="mb-4">您微笑着夸奖，把画贴在冰箱上。但一周后，这张画可能因为受潮卷边，或者为了腾出位置，最终不得不被收进抽屉，甚至——<strong>那是我们都不愿承认的——被扔进了废纸篓。</strong></p>
+                            
+                            <p class="mb-6">那一刻，被扔掉的不仅仅是一张纸，而是孩子童年稍纵即逝的<strong>“创造力火花”</strong>。我们总在说要保护孩子的想象力，但如果想象力摸不着、碰不到，它该如何被保存？</p>
+
+                            <div class="my-8 pl-4 border-l-4 border-purple-400 italic bg-purple-50/50 py-2 pr-2">
+                                我们是 3D·Future，我们想做一件很酷的事。<br>
+                                我们利用最新的 3D打印技术 和 AI人工智能，把孩子笔下平面的画，变成手中立体的真家伙。
+                            </div>
+
+                            <ul class="mb-6 list-disc list-inside space-y-2">
+                                <li>那个长着翅膀的恐龙，可以变成他床头的夜灯；</li>
+                                <li>那个三只眼睛的外星人，可以变成他书包上的专属挂件；</li>
+                                <li>那个为了保护妈妈而设计的盾牌，可以真实地立在他的桌面上。</li>
+                            </ul>
+
+                            <p class="mb-4">这不仅仅是一个玩具，这是一次关于“自信”的教育。当孩子看到自己脑海中的想法，真的变成了一个实实在在的物体，被您郑重地摆在客厅展示柜里时，这种<strong>“我能创造万物”</strong>的成就感，是任何昂贵的成品玩具都无法给予的。</p>
+
+                            <p class="mb-6">关于安全，我们比您更在意。我们严选优质农场，只使用 <strong>PLA（聚乳酸）</strong> 材料——它提取自玉米淀粉，无毒无味，环保安全。每一件作品在发货前，都会经过人工去毛刺，确保无尖锐棱角。</p>
+
+                            <p class="mb-8 font-bold text-center text-lg text-purple-700">第一次“造物”体验，由我们买单。</p>
+
+                            <div class="text-center p-4 border-2 border-dashed border-purple-300 rounded-lg bg-white mb-8">
+                                <div class="font-bold text-xl mb-1">🎁 首单免费试打券</div>
+                                <div class="text-sm text-slate-500">（仅限前100名，适用于6cm以下模型）</div>
+                            </div>
+
+                            <p class="mb-2">请别让孩子的下一次奇思妙想，再变成废纸。</p>
+                            <p class="mb-8">点击下方链接，上传孩子的一张涂鸦，见证魔法发生的时刻。</p>
+
+                            <div class="text-right mt-12">
+                                <p class="font-bold">3D·Future 团队</p>
+                                <p class="text-sm italic">守护每一份天马行空的想象</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            finance: {
+                color: 'cyan',
+                html: '' // Placeholder, will be rendered dynamically
+            }
+        };
+
+        // 状态切换逻辑
+        window.switchTab = function(key) {
+            const data = db[key];
+            if (!data) return; // 安全检查
+
+            const container = document.getElementById('content-container');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            // 1. 更新按钮状态
+            btns.forEach(btn => {
+                const btnId = btn.id.replace('tab-', '');
+                if (btnId === key) {
+                    btn.classList.add('tab-active', `border-${data.color}-500`, 'ring-1', `ring-${data.color}-500`);
+                    btn.classList.remove('border-slate-200');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('border-slate-200');
+                    // 清除特定颜色边框
+                    ['blue','rose','green','amber','purple','cyan'].forEach(c => {
+                         btn.classList.remove(`border-${c}-500`, `ring-${c}-500`);
+                    });
+                }
+            });
+
+            // 2. 注入内容
+            if (key === 'finance') {
+                container.innerHTML = renderFinanceTable();
+            } else {
+                container.innerHTML = data.html;
+            }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('strategy');
+        });
+    </script>
+</body>
+</html>
